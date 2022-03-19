@@ -1,0 +1,29 @@
+#pokemon {
+  width: 100%;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.toggle-page {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 60%;
+  margin-top: 1rem;
+}
+
+button {
+  background: tomato;
+  padding: .5rem;
+  border: none;
+  border-radius: .2rem;
+}
+
+button:hover {
+  background: snow;
+  color: tomato;
+  cursor: pointer;
+}
