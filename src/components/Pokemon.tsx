@@ -8,97 +8,54 @@ interface IPokemon {
 
 interface IPokemonState {
   readonly pokemons: IPokemon[]
-  readonly nextPokemonsPage: IPokemonState
-  readonly previousPokemonsPage: IPokemonState
+  readonly nextPokemonsUrl: string
+  readonly previousPokemonsUrl: string
 }
 
 class Pokemon extends Component {
   state: IPokemonState = { 
     pokemons: [],
-    nextPokemonsPage: {} as IPokemonState,
-    previousPokemonsPage: {} as IPokemonState
+    nextPokemonsUrl: "",
+    previousPokemonsUrl: ""
   }
 
-  pokemonApiUrl = "https://pokeapi.co/api/v2/pokemon"
-
-  async getJSON(url: string) {
+  async loadPokemon(url: string = "https://pokeapi.co/api/v2/pokemon") {
     try {
-      const response = await fetch(url, { method: "GET" })
-      const json = await response.json()
+      const response = await fetch(url)
+      const { results, next, previous } = await response.json()
 
-      return json
-    } catch {
-      return null 
-    }
+      this.setState({
+        ...this.state,
+        pokemons: results, 
+        nextPokemonsUrl: next, 
+        previousPokemonsUrl: previous
+      })
+    } catch {}
   }
 
-  async getNextPokemonsPage(nextUrl: string) {
-    const nextPokemonsPage = await this.getJSON(nextUrl)
-    return nextPokemonsPage
-  }
-
-  async getPreviousPokemonsPage(previousUrl: string) {
-    const previousPokemonsPage = await this.getJSON(previousUrl)
-    return previousPokemonsPage
-  }
-
-  nextPokemonsPage() {
+  async previousPokemonsPage() {
     const state = this.state
-    const nextPokemonsPage = state.nextPokemonsPage
-
-    this.setState({
-      ...state,
-      previousPokemonPage: state,
-      nextPokemonPage: nextPokemonsPage.nextPokemonsPage,
-      pokemons: nextPokemonsPage
-    })
+    state.previousPokemonsUrl && await this.loadPokemon(state.previousPokemonsUrl)
   }
 
-  previousPokemonsPage() {
+  async nextPokemonsPage() {
     const state = this.state
-    const previousPokemonsPage = state.previousPokemonsPage
-
-    this.setState({
-      ...state,
-      previousPokemonPage: previousPokemonsPage.previousPokemonsPage,
-      nextPokemonPage: state,
-      pokemons: previousPokemonsPage
-    })
-
+    state.nextPokemonsUrl && await this.loadPokemon(state.nextPokemonsUrl)
   }
 
-  componentDidMount() {
-    const getJSON = this.getJSON
-    const state = this.state
-
-    getJSON(this.pokemonApiUrl).then(async ({ 
-      results, 
-      next: nextUrl, 
-      previous: previousUrl
-   }) => {
-      const pokemons = state.pokemons
-      const newState = {
-        ...state,
-        pokemons: [...pokemons, ...results],
-        nextPokemonsPage: this.getNextPokemonsPage(nextUrl),
-        previousPokemonsPage: this.getPreviousPokemonsPage(previousUrl)
-      }
-
-      return this.setState(newState)
-    })
+  async componentDidMount() {
+    await this.loadPokemon()
   }
 
   render() {
-    const state = this.state
-
     return <div id="pokemon">
-      <ol>
-        {
-          state.pokemons?.map((pokemon, index) => <li key={ index }>
-            { pokemon.name }
-          </li>)
-        }
-      </ol>
+      {
+        this.state?.pokemons?.map(({ name }, index) => 
+          <section key={ index }>
+            { name }
+          </section>
+        )
+      }
 
       <div className="toggle-page">
         <button onClick={ this.previousPokemonsPage.bind(this) }>Previous</button>
