@@ -1,0 +1,120 @@
+#pokemon-modal {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  background: #202020;
+  width: 30%;
+  z-index: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+
+  #pokemon {
+    position: relative;
+  }
+
+  div {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+
+    img {
+      width: 100%;
+      height: auto;
+      border: 1px solid snow;
+    }
+
+    button {
+      background: tomato;
+      border-radius: 50%;
+      cursor: pointer;
+      margin-top: 1rem;
+
+      &:hover {
+        background: snow;
+      }
+    }
+  }
+
+  .image {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    position: relative;
+    border: 2px solid snow;
+
+    #pokemon {
+      width: 100%;
+    }
+
+    #close-modal {
+      width: 2rem;
+      height: 2rem;
+      border: none;
+      position: absolute;
+      top: .5rem;
+      right: .5rem;
+      cursor: pointer;
+      opacity: 0.9;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  #pokemon-info {
+    border: 2px solid snow;
+    border-top: none;
+    width: 100%;
+    height: fit-content;
+    padding: 1rem 3.5rem;
+
+    div {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: .2rem 0;
+    }
+
+    #pokemon-types, #pokemon-moves {
+      padding: 0;
+
+      svg {
+        width: 1rem;
+        height: .6rem;
+        margin-left: .2rem;
+        cursor: pointer;
+      }
+
+      strong {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      ul {
+        position: absolute;
+        top: 80%;
+        left: 50%;
+        background: #303030;
+        list-style: none;
+        padding: 1rem;
+        border: 2px solid snow;
+        margin-bottom: .5rem;
+        width: 100%;
+
+        li {
+          width: 100%;
+        }
+      }
+    }
+  }
+}

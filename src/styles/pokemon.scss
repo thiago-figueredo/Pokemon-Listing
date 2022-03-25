@@ -1,0 +1,45 @@
+#pokemon {
+  width: 60%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  margin: 0 auto;
+
+  main, section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  section {
+    width: 100%;
+    padding: .5rem;
+    text-align: center;
+    margin: 1rem;
+    border: 2px solid tomato;
+    border-radius: .3rem;
+    font-weight: 700;
+
+    div {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    &:hover, button:hover {
+      border-radius: .2rem;
+      background: #202020;
+      cursor: pointer;
+    }
+  }
+}
+
+.toggle-page {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 60%;
+  margin-top: 1rem;
+}

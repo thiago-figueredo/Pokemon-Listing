@@ -12,3 +12,22 @@ body, #root {
   background-color: #303030;
   height: 100vh;
 }
+
+body {
+  position: relative;
+}
+
+button {
+  background: tomato;
+  padding: .5rem 1rem;
+  border: 2px solid snow;
+  border-radius: .2rem;
+  margin-bottom: 1rem;
+  font-size: medium;
+
+  &:hover {
+    cursor: pointer;
+    background: snow;
+    color: tomato;
+  }
+}

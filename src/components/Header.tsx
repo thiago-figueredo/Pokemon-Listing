@@ -1,7 +1,7 @@
-import "../styles/header.css"
+import "../styles/header.scss"
 
-const Header = () => <header>
-  <h3>Pokemon List</h3>
-</header>
-
-export default Header
+export default function Header() { 
+  return <header>
+    <h3>Pokemon List</h3>
+  </header>
+}
