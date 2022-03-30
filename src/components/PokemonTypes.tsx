@@ -1,15 +1,22 @@
-interface IPokemonTypeProps {
-  readonly types: string[]
+import { CSSProperties, FC } from "react"
+
+export interface IPokemonTypeProps {
+  readonly types?: string[]
+  readonly style?: CSSProperties
 }
 
-const PokemonType = ({ types }: IPokemonTypeProps) => {
-  return <ul>
-    {
-      types.map((type, index) => <li key={ index }>
-        { type }
-      </li>)
-    }
-  </ul>
+const PokemonTypes: FC<IPokemonTypeProps> = (
+  { types, style }: IPokemonTypeProps
+) => {
+  return <div>
+    <ul style={ style }>
+      {
+        types?.map((type, index) => <li key={ index }>
+          { type }
+        </li>)
+      }
+    </ul>
+  </div>
 }
 
-export default PokemonType
+export default PokemonTypes

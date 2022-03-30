@@ -15,6 +15,11 @@ export interface IPokemonStat {
   readonly effort: number
 }
 
+export type IPokemonTypes = string[]
+export type IPokemonMoves = string[]
+export type IPokemonAbilities = string[]
+export type IPokemonStats = IPokemonStat[]
+
 interface IPokeApiPokemonStat {
   readonly stat: { name: string }
   readonly base_stat: number
@@ -60,4 +65,5 @@ export interface IPokeApiResponse {
 
 export interface IPokemon extends IPokemonInfo {
   readonly src: string
+  readonly isDisplayed: boolean
 }

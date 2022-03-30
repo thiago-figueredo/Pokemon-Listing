@@ -1,34 +1,46 @@
 import { 
-  IPokemon, 
-  IPokeApiPokemon,
-  IPokeApiResponse, 
-} from "./interfaces/pokemon"
-import { useRef, useCallback, useEffect, useState, MouseEvent } from "react"
+  CSSProperties, 
+  Fragment,
+  MouseEvent, 
+  Ref,
+  useCallback, 
+  useEffect, 
+  useState, 
+  useRef,
+} from "react"
+import { IPokemon, IPokeApiPokemon, IPokeApiResponse } from "./interfaces/pokemon"
 import PokemonModal from "./components/PokemonModal"
 import Pokemon from './components/Pokemon'
 import Header from "./components/Header"
+
+export interface IPokemonModal {
+  readonly display: boolean
+  readonly style: CSSProperties
+}
 
 export interface IPokemonState {
   readonly pokemons: IPokemon[]
   readonly previousPokemonsUrl: string
   readonly nextPokemonsUrl: string
-  readonly displayPokemonModal: boolean
+  readonly pokemonModals: IPokemonModal[]
 }
 
 export const initialState: IPokemonState = {
   pokemons: [],
+  pokemonModals: Array(20),
   previousPokemonsUrl: "",
   nextPokemonsUrl: "",
-  displayPokemonModal: false
 }
 
 export default function App() {
   const pokemonUrl = "https://pokeapi.co/api/v2/pokemon"
-  const pokemonModalRef = useRef<HTMLElement>()
+  const pokemonSectionRefs = useRef<HTMLElement[]>([])
   const [state, setState] = useState<IPokemonState>(initialState)
+
+  const pokemons = state.pokemons
+  const pokemonModals = state.pokemonModals
   const previousPokemonsUrl = state.previousPokemonsUrl
   const nextPokemonsUrl = state.nextPokemonsUrl
-  const displayPokemonModal = state.displayPokemonModal
 
   const getJSON = async (url: string) => {
     const response = await fetch(url)
@@ -62,6 +74,7 @@ export default function App() {
 
           return {
             name, height, weight, id, src,
+            isDisplayed: false,
             types: types.map(({ type }) => type.name),
             moves: moves.map(({ move }) => move.name),
             abilities: abilities.map(({ ability }) => ability.name),
@@ -80,42 +93,45 @@ export default function App() {
     } catch {}
   }, [setState, getPokemonImage])
 
-  const openPokemonModal = useCallback(({ 
-    currentTarget 
-  }: MouseEvent<HTMLElement>) => {
-    const pokemonName = currentTarget.childNodes[0].firstChild?.textContent as string
-    const id = state.pokemons.findIndex(({ name }) => name === pokemonName)
+  const openPokemonModal = useCallback(({ currentTarget }: MouseEvent<HTMLElement>) => {
+    const pokemonName = currentTarget.id
+    const pokemonIndex = pokemons.findIndex(({ name }) => name === pokemonName)
+    const gridRow = `${pokemonIndex + 1} / ${pokemonIndex + 2}`
 
-    currentTarget.id = id.toString()
-    pokemonModalRef.current = currentTarget
+    pokemonSectionRefs.current[pokemonIndex]!.style.display = "none"
 
-    setState(oldState => ({ 
-      ...oldState, 
-      displayPokemonModal: true,
-    }))
-  }, [state.pokemons])
+    setState(oldState => { 
+      const pokemonModals = oldState.pokemonModals
 
-  const closePokemonModal = useCallback(() => {
-    setState(oldState => ({ ...oldState, displayPokemonModal: false }))
-  }, [])
+      pokemonModals[pokemonIndex] = {
+        display: true,
+        style: { gridRow }
+      }
 
-  const pokemonProps = {
-    openPokemonModal
-  }
+      return { ...oldState, pokemonModals }
+    })
+  }, [pokemons])
 
-  const pokemon = state.pokemons[parseInt(pokemonModalRef.current?.id as string)]
-  const pokemonModalProps = {
-    ...pokemon,
-    closePokemonModal
-  }
+  const closePokemonModal = useCallback(({ currentTarget }: MouseEvent<HTMLElement>) => {
+    const arrayWithPokemonName = currentTarget.className.match(/close-modal (.*)/)
 
-  useEffect(() => {
-    if (pokemonModalRef.current) {
-      displayPokemonModal ? 
-        pokemonModalRef.current.style.display = "none"  :
-        pokemonModalRef.current.style.display =  "flex"
+    if (arrayWithPokemonName) {
+      const pokemonIndex = pokemons.findIndex(({ name }) => 
+        name === arrayWithPokemonName[1])
+
+      pokemonSectionRefs.current[pokemonIndex]!.style.display = ""
+
+      setState(oldState => { 
+        let pokemonModals = oldState.pokemonModals
+        pokemonModals[pokemonIndex] = { display: false, style: {} }
+
+        return { 
+          ...oldState, 
+          pokemonModals 
+        }
+      })
     }
-  }, [displayPokemonModal])
+  }, [pokemons])
 
   useEffect(() => {
     JSON.stringify(state) === JSON.stringify(initialState) && loadPokemons(pokemonUrl)
@@ -126,9 +142,31 @@ export default function App() {
 
     <main id="pokemon">
       {
-        state.pokemons.map((pokemon) => 
-          <Pokemon key={ pokemon.id } { ...{ ...pokemon, ...pokemonProps } } />
+        pokemons.map((pokemon, index) => 
+          <Fragment key={ pokemon.id }>
+            <Pokemon 
+              name={ pokemon.name } 
+              src={ pokemon.src } 
+              openPokemonModal={ openPokemonModal }
+              ref={ self => pokemonSectionRefs.current[index] = self as HTMLElement }
+            />
+          </Fragment>
         )
+      }
+
+      {
+        pokemonModals.map(({ display, style }, index) => {
+          const { 
+            name, src, height, weight, types, moves, abilities, stats 
+          } = pokemons[index]
+
+          const pokemonModalProps = { 
+            name, src, height, weight, types, moves, 
+            abilities, stats, style, closePokemonModal
+          }
+
+          return display && <PokemonModal key={ index } { ...pokemonModalProps } />
+        })
       }
 
       <div className="toggle-page">
@@ -141,7 +179,5 @@ export default function App() {
         </button>
       </div>
     </main>
-
-      { displayPokemonModal && <PokemonModal { ...pokemonModalProps } />}
   </> 
 }

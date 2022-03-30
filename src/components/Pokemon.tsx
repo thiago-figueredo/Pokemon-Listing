@@ -1,4 +1,4 @@
-import { MouseEventHandler } from "react"
+import { forwardRef, MouseEventHandler, Ref } from "react"
 import "../styles/pokemon.scss"
 
 interface IPokemonProps {
@@ -7,17 +7,23 @@ interface IPokemonProps {
   readonly openPokemonModal: MouseEventHandler<HTMLElement>
 }
 
-export default function Pokemon(
-  { name, src, openPokemonModal }: IPokemonProps,
-) {
+const Pokemon = forwardRef<HTMLElement, IPokemonProps>((
+  { name, src, openPokemonModal },
+  ref
+) => {
   return <>
     <section 
-      onClick={ openPokemonModal } 
+      id={ name } 
+      ref={ ref }
+      className="pokemon-section" 
+      onClick={ openPokemonModal }
     >
       <div>
         <h3>{ name }</h3>
-        <img src={ src } alt={ name } />
+        <img src={ src } alt="" />
       </div>
     </section>
-  </> 
-}
+  </>
+})
+
+export default Pokemon

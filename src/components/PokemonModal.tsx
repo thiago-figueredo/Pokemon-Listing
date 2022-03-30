@@ -1,39 +1,40 @@
-import { MouseEventHandler, useState } from "react"
-import { IPokemonStat } from "../interfaces/pokemon"
-import { FaPlay } from "react-icons/fa"
-import PokemonTypes from "./PokemonTypes"
-import PokemonMoves from "./PokemonMoves"
+import { 
+  IPokemonAbilities, 
+  IPokemonMoves, 
+  IPokemonStats, 
+  IPokemonTypes 
+} from "../interfaces/pokemon"
+import { CSSProperties, forwardRef, MouseEventHandler } from "react"
+import PokemonInfoCard from "./PokemonInfoCard"
 import "../styles/pokemonModal.scss"
 
 export interface IPokemonModalProps {
-  readonly id: number
-  readonly src: string
   readonly name: string
+  readonly src: string
   readonly height: number
   readonly weight: number
-  readonly abilities: string[]
-  readonly types: string[]
-  readonly moves: string[]
-  readonly stats: IPokemonStat[]
+  readonly style: CSSProperties
+  readonly types: IPokemonTypes
+  readonly moves: IPokemonMoves
+  readonly abilities: IPokemonAbilities
+  readonly stats: IPokemonStats
   readonly closePokemonModal: MouseEventHandler<HTMLOrSVGElement>
 }
 
-export default function PokemonModal({ 
-  name, weight, height, abilities, moves, types, src, stats, closePokemonModal
-}: IPokemonModalProps) {
-  const [state, setState] = useState({
-    openPokemonTypeModal: false,
-    openPokemonMoveModal: false
-  })
+const PokemonModal = forwardRef<HTMLElement, IPokemonModalProps>((
+  { 
+    name, src, height, weight, types, moves, 
+    abilities, stats, style, closePokemonModal 
+  },
+  ref
+) => {
+  const pokemonInfoCardProps = { types, moves, abilities, stats }
 
-  const openPokemonTypeModal = state.openPokemonTypeModal
-  const openPokemonMoveModal = state.openPokemonMoveModal
-
-  return <article id="pokemon-modal">
+  return <article id="pokemon-modal" ref={ ref } style={ style }>
     <section className="image">
-      <img id="pokemon" src={ src } alt={ name } />
+      <img id="pokemon" src={ src } alt="" />
       <img 
-        id="close-modal"
+        className={ `close-modal ${name}`} 
         alt=""
         src="https://cdn-icons-png.flaticon.com/512/753/753345.png" 
         onClick={ closePokemonModal } 
@@ -56,41 +57,9 @@ export default function PokemonModal({
         <span>{ weight }</span>
       </div>
 
-      <div id="pokemon-types">
-        <strong>
-          types<FaPlay 
-            onClick={ 
-              () => setState(
-                oldState => ({ 
-                  ...oldState, 
-                  openPokemonTypeModal: !oldState.openPokemonTypeModal
-                })
-              ) 
-            }
-
-            style={ openPokemonTypeModal ? {} : { opacity: "0.9" }}
-          />
-        </strong>
-        { openPokemonTypeModal && <PokemonTypes types={ types } /> }
-      </div>
-
-      <div id="pokemon-moves">
-        <strong>
-          moves<FaPlay 
-            onClick={ 
-              () => setState(
-                oldState => ({ 
-                  ...oldState, 
-                  openPokemonMoveModal: !oldState.openPokemonMoveModal 
-                })
-              ) 
-            }
-
-            style={ openPokemonTypeModal ? {} : { opacity: "0.9" }}
-          />
-        </strong>
-        { openPokemonMoveModal && <PokemonMoves moves={ moves } /> }
-      </div>
+      <PokemonInfoCard { ...pokemonInfoCardProps } />
     </section>
   </article> 
-}
+})
+
+export default PokemonModal

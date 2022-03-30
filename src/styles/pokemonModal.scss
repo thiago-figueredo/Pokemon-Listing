@@ -4,17 +4,14 @@
   justify-content: space-around;
   align-items: center;
   background: #202020;
-  width: 30%;
+  width: 50%;
+  position: relative;
   z-index: 1;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  grid-column: 1/2;
   margin: 0 auto;
-
-  #pokemon {
-    position: relative;
-  }
+  margin-bottom: 2rem;
+  border-radius: .5rem;
+  padding: 1rem;
 
   div {
     width: 80%;
@@ -26,7 +23,6 @@
     img {
       width: 100%;
       height: auto;
-      border: 1px solid snow;
     }
 
     button {
@@ -42,17 +38,18 @@
   }
 
   .image {
-    width: 100%;
     display: flex;
     justify-content: space-evenly;
-    position: relative;
     border: 2px solid snow;
+    margin-top: 1rem;
 
     #pokemon {
       width: 100%;
+      position: relative;
+      background: #252525;
     }
 
-    #close-modal {
+    .close-modal {
       width: 2rem;
       height: 2rem;
       border: none;
@@ -69,22 +66,26 @@
   }
 
   #pokemon-info {
-    border: 2px solid snow;
-    border-top: none;
     width: 100%;
-    height: fit-content;
-    padding: 1rem 3.5rem;
+    padding: 1rem 2rem;
+    display: flex;
+    flex-direction: column;
 
     div {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
+      text-align: start;
       align-items: center;
       width: 100%;
       padding: .2rem 0;
+
+      span {
+        text-align: start;
+      }
     }
 
-    #pokemon-types, #pokemon-moves {
+    .pokemon-info-card {
       padding: 0;
 
       svg {
@@ -102,14 +103,12 @@
 
       ul {
         position: absolute;
-        top: 80%;
-        left: 50%;
-        background: #303030;
-        list-style: none;
-        padding: 1rem;
+        background: #202020;
+        padding: 1rem 2rem;
         border: 2px solid snow;
-        margin-bottom: .5rem;
+        margin-top: 1rem;
         width: 100%;
+        margin: 4rem 0 0 5rem;
 
         li {
           width: 100%;
