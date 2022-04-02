@@ -35,9 +35,9 @@ const PokemonModal = forwardRef<HTMLElement, IPokemonModalProps>((
       <img id="pokemon" src={ src } alt="" />
       <img 
         className={ `close-modal ${name}`} 
-        alt=""
         src="https://cdn-icons-png.flaticon.com/512/753/753345.png" 
         onClick={ closePokemonModal } 
+        alt=""
       />
     </section>
 

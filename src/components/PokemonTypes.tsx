@@ -1,15 +1,12 @@
-import { CSSProperties, FC } from "react"
+import { FC } from "react"
 
 export interface IPokemonTypeProps {
   readonly types?: string[]
-  readonly style?: CSSProperties
 }
 
-const PokemonTypes: FC<IPokemonTypeProps> = (
-  { types, style }: IPokemonTypeProps
-) => {
+const PokemonTypes: FC<IPokemonTypeProps> = ({ types }: IPokemonTypeProps) => {
   return <div>
-    <ul style={ style }>
+    <ul>
       {
         types?.map((type, index) => <li key={ index }>
           { type }

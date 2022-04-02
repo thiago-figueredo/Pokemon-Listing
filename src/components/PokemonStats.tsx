@@ -1,31 +1,45 @@
-import { CSSProperties, FC, useState } from "react"
+import { Dispatch, FC, SetStateAction, MouseEvent } from "react"
 import { IPokemonStat } from "../interfaces/pokemon"
+import { IOverlappingInfoCard } from "./overlappingInfoCard"
 import { FaPlay } from "react-icons/fa"
 
 export interface IPokemonStatsProps {
   readonly stats?: IPokemonStat[]
-  readonly style?: CSSProperties
+  readonly overlappingInfoCard: IOverlappingInfoCard
+  readonly setOverlappingInfoCard: Dispatch<SetStateAction<IOverlappingInfoCard>>
 }
 
-const PokemonStats: FC<IPokemonStatsProps> = (
-  { stats, style }: IPokemonStatsProps
-) => {
-  const [openStatModal, setOpenStatModal] = useState(false)
+const PokemonStats: FC<IPokemonStatsProps> = ({ 
+  stats, overlappingInfoCard, setOverlappingInfoCard
+}: IPokemonStatsProps) => {
+  const openStatInfoCard = ({ currentTarget }: MouseEvent<SVGElement>) => {
+    const strongTag = currentTarget.parentElement
+    const statName = strongTag?.parentElement?.id as string
+
+    setOverlappingInfoCard({ name: statName, isDisplayed: true })
+  }
 
   return <div>
-    <ul style={ style }>
+    <ul>
       {
-        stats?.map(({ name, base_stat, effort }, index) => <li key={ index }>
+        stats?.map(({ name, base_stat, effort }, index) => <li 
+          key={ index }
+          id={ name }
+        >
           <strong>
             { name }
-            <FaPlay onClick={ () => setOpenStatModal(!openStatModal) }/>
+            <FaPlay onClick={ openStatInfoCard }/>
           </strong>
 
           {
-            openStatModal && <ul>
-              <li>base_stat: { base_stat }</li>
-              <li>effort: { effort }</li>
-            </ul>
+            overlappingInfoCard.name === name && 
+              overlappingInfoCard.isDisplayed && 
+                <li>
+                  <ul>
+                    <li>base_stat: { base_stat }</li>
+                    <li>effort: { effort }</li>
+                  </ul>
+                </li>
           }
         </li>)
       }

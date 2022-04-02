@@ -1,15 +1,14 @@
-import { CSSProperties, FC } from "react"
+import { FC } from "react"
 
 export interface IPokemonAbilitiesProps {
   readonly abilities?: string[]
-  readonly style?: CSSProperties
 }
 
 const PokemonAbilities: FC<IPokemonAbilitiesProps> = (
-  { abilities, style }: IPokemonAbilitiesProps
+  { abilities }: IPokemonAbilitiesProps
 ) => {
   return <div>
-    <ul style={ style }>
+    <ul>
       {
         abilities?.map((ability, index) => <li key={ index }>
           { ability }

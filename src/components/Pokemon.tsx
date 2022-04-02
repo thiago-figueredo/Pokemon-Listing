@@ -1,4 +1,4 @@
-import { forwardRef, MouseEventHandler, Ref } from "react"
+import { forwardRef, MouseEventHandler } from "react"
 import "../styles/pokemon.scss"
 
 interface IPokemonProps {

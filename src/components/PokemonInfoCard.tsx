@@ -18,18 +18,15 @@ interface IPokemonInfoCardProps {
   readonly stats: IPokemonStats
 }
 
-interface IOverlappingInfoCard {
-  readonly isDisplayed: boolean
-  readonly name: string
-}
-
 export default function PokemonInfoCard({
   types, moves, abilities, stats
 }: IPokemonInfoCardProps) {
-  const [overlappingInfoCard, setOverlappingInfoCard] = useState<IOverlappingInfoCard>({
+  const [overlappingInfoCard, setOverlappingInfoCard] = useState({
     isDisplayed: false,
     name: "",
   })
+
+  const [pokemonMovesStyle, setPokemonMovesStyle] = useState({})
 
   const pokemonTypesComponent = PokemonTypes.name
   const pokemonMovesComponent = PokemonMoves.name
@@ -37,16 +34,19 @@ export default function PokemonInfoCard({
   const pokemonStatsComponent = PokemonStats.name
   const overlappingInfoCardName = overlappingInfoCard.name
   const overlappingInfoCardIsDisplayed = overlappingInfoCard.isDisplayed
+  const pokemonStatsProps = { stats, overlappingInfoCard, setOverlappingInfoCard }
 
-  const openPokemonInfoCard = ({ currentTarget }: MouseEvent<SVGElement>) => {
-    const strongTag = currentTarget.parentElement
+  const openPokemonInfoCard = (event: MouseEvent<SVGElement>) => {
+    const strongTag = event.currentTarget.parentElement
     const pokemonInfoCard = strongTag?.parentElement
     const arrayWithComponentName = pokemonInfoCard?.className
       .match(/pokemon-info-card (.*)/) as RegExpMatchArray
     const componentName = arrayWithComponentName[1]
+    const { top } = pokemonInfoCard?.getBoundingClientRect() as DOMRect
 
-    setOverlappingInfoCard(({ name, isDisplayed}) => ({
-      isDisplayed: name === componentName ?  !isDisplayed : true,
+    setPokemonMovesStyle({ top: event.clientY - top })
+    setOverlappingInfoCard(({ name, isDisplayed }) => ({
+      isDisplayed: name === componentName ? !isDisplayed : true,
       name: componentName
     }))
   }
@@ -55,11 +55,11 @@ export default function PokemonInfoCard({
     <div className={ `pokemon-info-card ${pokemonTypesComponent}` }>
       <PokemonInfoCardHelper 
         label="types" 
+        openPokemonInfoCard={ openPokemonInfoCard }
         openInfo={ 
           overlappingInfoCardName === pokemonTypesComponent &&
             overlappingInfoCardIsDisplayed
         } 
-        openPokemonInfoCard={ openPokemonInfoCard }
       />
 
       { 
@@ -71,32 +71,36 @@ export default function PokemonInfoCard({
     <div className={ `pokemon-info-card ${pokemonMovesComponent}` }>
       <PokemonInfoCardHelper 
         label="moves" 
+        openPokemonInfoCard={ openPokemonInfoCard }
         openInfo={ 
           overlappingInfoCardName === pokemonMovesComponent &&
             overlappingInfoCardIsDisplayed
         } 
-        openPokemonInfoCard={ openPokemonInfoCard }
       />
 
       { 
         overlappingInfoCardName === pokemonMovesComponent && 
-          overlappingInfoCardIsDisplayed && <PokemonMoves moves={ moves } /> 
+          overlappingInfoCardIsDisplayed && 
+            <PokemonMoves 
+              moves={ moves } 
+              style={ pokemonMovesStyle }
+            /> 
       }
     </div>
 
     <div className={ `pokemon-info-card ${pokemonAbilitiesComponent}` }>
       <PokemonInfoCardHelper 
         label="abilities" 
+        openPokemonInfoCard={ openPokemonInfoCard }
         openInfo={ 
           overlappingInfoCardName === pokemonAbilitiesComponent &&
             overlappingInfoCardIsDisplayed 
         } 
-        openPokemonInfoCard={ openPokemonInfoCard }
       />
 
       { 
         overlappingInfoCardName === pokemonAbilitiesComponent && 
-          overlappingInfoCardIsDisplayed &&  
+          overlappingInfoCardIsDisplayed && 
             <PokemonAbilities abilities={ abilities } /> 
       }
     </div>
@@ -104,16 +108,17 @@ export default function PokemonInfoCard({
     <div className={ `pokemon-info-card ${pokemonStatsComponent}` }>
       <PokemonInfoCardHelper 
         label="stats" 
+        openPokemonInfoCard={ openPokemonInfoCard }
         openInfo={ 
           overlappingInfoCardName === pokemonStatsComponent &&
             overlappingInfoCardIsDisplayed
         } 
-        openPokemonInfoCard={ openPokemonInfoCard }
       />
 
       { 
         overlappingInfoCardName === pokemonStatsComponent && 
-          overlappingInfoCardIsDisplayed && <PokemonStats stats={ stats } /> 
+          overlappingInfoCardIsDisplayed && 
+            <PokemonStats { ...pokemonStatsProps } /> 
       }
     </div>
   </>

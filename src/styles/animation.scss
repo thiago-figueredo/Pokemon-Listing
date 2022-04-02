@@ -1,0 +1,18 @@
+@keyframes loading-effect {
+  0% {
+    color: #9880ff;
+  }
+
+
+  50% {
+    color: tomato;
+  }
+  
+  100% {
+    color: transparent;
+  }
+}
+
+.loading-effect {
+  animation: loading-effect 1s infinite;
+}
