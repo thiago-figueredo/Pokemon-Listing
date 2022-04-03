@@ -1,15 +1,16 @@
 import { 
   IPokemonAbilities, 
   IPokemonMoves, 
+  IPokemonStat, 
   IPokemonStats, 
   IPokemonTypes 
 } from "../interfaces/pokemon"
-import { MouseEvent, useState } from "react"
+import { MouseEvent, useState, FC } from "react"
+import OverlappingInfoCard from "./OverlappingInfoCard"
 import PokemonTypes from "./PokemonTypes"
 import PokemonMoves from "./PokemonMoves"
 import PokemonAbilities from "./PokemonAbilities"
 import PokemonStats from "./PokemonStats"
-import PokemonInfoCardHelper from "./PokemonInfoCardHelper"
 
 interface IPokemonInfoCardProps {
   readonly types: IPokemonTypes
@@ -18,12 +19,17 @@ interface IPokemonInfoCardProps {
   readonly stats: IPokemonStats
 }
 
+export type InfoCard = {
+  readonly name: string
+  readonly isDisplayed: boolean
+}
+
 export default function PokemonInfoCard({
   types, moves, abilities, stats
 }: IPokemonInfoCardProps) {
-  const [overlappingInfoCard, setOverlappingInfoCard] = useState({
-    isDisplayed: false,
+  const [infoCard, setInfoCard] = useState<InfoCard>({
     name: "",
+    isDisplayed: false,
   })
 
   const [pokemonMovesStyle, setPokemonMovesStyle] = useState({})
@@ -32,94 +38,59 @@ export default function PokemonInfoCard({
   const pokemonMovesComponent = PokemonMoves.name
   const pokemonAbilitiesComponent = PokemonAbilities.name
   const pokemonStatsComponent = PokemonStats.name
-  const overlappingInfoCardName = overlappingInfoCard.name
-  const overlappingInfoCardIsDisplayed = overlappingInfoCard.isDisplayed
-  const pokemonStatsProps = { stats, overlappingInfoCard, setOverlappingInfoCard }
+  const infoCardName = infoCard.name
+  const infoCardIsDisplayed = infoCard.isDisplayed
 
   const openPokemonInfoCard = (event: MouseEvent<SVGElement>) => {
     const strongTag = event.currentTarget.parentElement
     const pokemonInfoCard = strongTag?.parentElement
     const arrayWithComponentName = pokemonInfoCard?.className
-      .match(/pokemon-info-card (.*)/) as RegExpMatchArray
+      .match(/\s(\w*)/) as RegExpMatchArray
     const componentName = arrayWithComponentName[1]
     const { top } = pokemonInfoCard?.getBoundingClientRect() as DOMRect
 
     setPokemonMovesStyle({ top: event.clientY - top })
-    setOverlappingInfoCard(({ name, isDisplayed }) => ({
+    setInfoCard(({ name, isDisplayed }) => ({
       isDisplayed: name === componentName ? !isDisplayed : true,
       name: componentName
     }))
   }
 
   return <>
-    <div className={ `pokemon-info-card ${pokemonTypesComponent}` }>
-      <PokemonInfoCardHelper 
-        label="types" 
-        openPokemonInfoCard={ openPokemonInfoCard }
-        openInfo={ 
-          overlappingInfoCardName === pokemonTypesComponent &&
-            overlappingInfoCardIsDisplayed
-        } 
-      />
+    <OverlappingInfoCard 
+      label="types" 
+      props={{ types }}
+      infoCard={ infoCard }
+      Component={ PokemonTypes as FC<{}> }
+      openInfoCard={ openPokemonInfoCard }
+      openInfo={ infoCardName === pokemonTypesComponent && infoCardIsDisplayed } 
+    />
 
-      { 
-        overlappingInfoCardName === pokemonTypesComponent && 
-          overlappingInfoCardIsDisplayed && <PokemonTypes types={ types } /> 
-      }
-    </div>
+    <OverlappingInfoCard 
+      label="moves" 
+      props={{ moves, style: pokemonMovesStyle }}
+      infoCard={ infoCard }
+      Component={ PokemonMoves as FC<{}> }
+      openInfoCard={ openPokemonInfoCard }
+      openInfo={ infoCardName === pokemonMovesComponent && infoCardIsDisplayed } 
+    />
 
-    <div className={ `pokemon-info-card ${pokemonMovesComponent}` }>
-      <PokemonInfoCardHelper 
-        label="moves" 
-        openPokemonInfoCard={ openPokemonInfoCard }
-        openInfo={ 
-          overlappingInfoCardName === pokemonMovesComponent &&
-            overlappingInfoCardIsDisplayed
-        } 
-      />
-
-      { 
-        overlappingInfoCardName === pokemonMovesComponent && 
-          overlappingInfoCardIsDisplayed && 
-            <PokemonMoves 
-              moves={ moves } 
-              style={ pokemonMovesStyle }
-            /> 
-      }
-    </div>
-
-    <div className={ `pokemon-info-card ${pokemonAbilitiesComponent}` }>
-      <PokemonInfoCardHelper 
-        label="abilities" 
-        openPokemonInfoCard={ openPokemonInfoCard }
-        openInfo={ 
-          overlappingInfoCardName === pokemonAbilitiesComponent &&
-            overlappingInfoCardIsDisplayed 
-        } 
-      />
-
-      { 
-        overlappingInfoCardName === pokemonAbilitiesComponent && 
-          overlappingInfoCardIsDisplayed && 
-            <PokemonAbilities abilities={ abilities } /> 
-      }
-    </div>
-
-    <div className={ `pokemon-info-card ${pokemonStatsComponent}` }>
-      <PokemonInfoCardHelper 
-        label="stats" 
-        openPokemonInfoCard={ openPokemonInfoCard }
-        openInfo={ 
-          overlappingInfoCardName === pokemonStatsComponent &&
-            overlappingInfoCardIsDisplayed
-        } 
-      />
-
-      { 
-        overlappingInfoCardName === pokemonStatsComponent && 
-          overlappingInfoCardIsDisplayed && 
-            <PokemonStats { ...pokemonStatsProps } /> 
-      }
-    </div>
+    <OverlappingInfoCard 
+      label="abilities" 
+      props={{ abilities }} 
+      infoCard={ infoCard }
+      Component={ PokemonAbilities as FC<{}> }
+      openInfoCard={ openPokemonInfoCard }
+      openInfo={ infoCardName === pokemonAbilitiesComponent && infoCardIsDisplayed } 
+    />
+    
+    <OverlappingInfoCard 
+      label="stats" 
+      props={{ stats }}
+      infoCard={ infoCard }
+      Component={ PokemonStats as FC<{}> }
+      openInfoCard={ openPokemonInfoCard }
+      openInfo={ infoCardName === pokemonStatsComponent && infoCardIsDisplayed } 
+    />
   </>
 }

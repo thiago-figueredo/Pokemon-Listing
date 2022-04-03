@@ -132,10 +132,10 @@ export default function App() {
 
   const closePokemonModal = useCallback(({ currentTarget }: MouseEvent<HTMLElement>) => {
     const arrayWithPokemonName = currentTarget.className.match(/close-modal (.*)/)
+    const pokemonName = arrayWithPokemonName ? arrayWithPokemonName[1] : ""
 
     if (arrayWithPokemonName) {
-      const pokemonIndex = pokemons.findIndex(({ name }) => 
-        name === arrayWithPokemonName[1])
+      const pokemonIndex = pokemons.findIndex(({ name }) => name === pokemonName)
 
       pokemonSectionRefs.current[pokemonIndex]!.style.display = ""
 
@@ -151,10 +151,7 @@ export default function App() {
     }
   }, [pokemons])
 
-  useEffect(() => {
-    isFirstRender() && loadPokemons(pokemonUrl)
-  }, [pokemons])
-
+  useEffect(() => { isFirstRender() && loadPokemons(pokemonUrl) }, [pokemons])
 
   return <>
     <Header />

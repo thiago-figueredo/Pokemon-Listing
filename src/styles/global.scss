@@ -10,7 +10,11 @@
 
 body, #root {
   background-color: #303030;
-  height: 100vh;
+  height: 100%;
+}
+
+ul {
+  list-style-type: disc;
 }
 
 button {

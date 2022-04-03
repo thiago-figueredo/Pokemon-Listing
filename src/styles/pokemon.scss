@@ -6,6 +6,7 @@
   position: relative;
   display: grid;
   grid-template-columns: 1fr;
+  justify-content: center;
   margin: 0 auto;
 
   main, section {
@@ -32,7 +33,6 @@
   }
 
   .pokemon-section {
-    width: 100%;
     grid-column: 1/2;
     padding: .5rem;
     text-align: center;
@@ -45,6 +45,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      padding: 0 1rem;
     }
 
     &:hover, button:hover {

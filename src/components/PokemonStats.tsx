@@ -1,50 +1,63 @@
-import { Dispatch, FC, SetStateAction, MouseEvent } from "react"
+import {  FC, Ref, MouseEvent, useRef, useState, Fragment } from "react"
 import { IPokemonStat } from "../interfaces/pokemon"
-import { IOverlappingInfoCard } from "./overlappingInfoCard"
 import { FaPlay } from "react-icons/fa"
 
 export interface IPokemonStatsProps {
   readonly stats?: IPokemonStat[]
-  readonly overlappingInfoCard: IOverlappingInfoCard
-  readonly setOverlappingInfoCard: Dispatch<SetStateAction<IOverlappingInfoCard>>
 }
 
-const PokemonStats: FC<IPokemonStatsProps> = ({ 
-  stats, overlappingInfoCard, setOverlappingInfoCard
-}: IPokemonStatsProps) => {
-  const openStatInfoCard = ({ currentTarget }: MouseEvent<SVGElement>) => {
-    const strongTag = currentTarget.parentElement
-    const statName = strongTag?.parentElement?.id as string
+const PokemonStats: FC<IPokemonStatsProps> = ({ stats }: IPokemonStatsProps) => {
+  const [infoCard, setInfoCard] = useState({ name: "", isDisplayed: false })
+  const ulRefs = useRef<HTMLUListElement[]>([])
 
-    setOverlappingInfoCard({ name: statName, isDisplayed: true })
+  const openStatInfoCard = (event: MouseEvent<SVGElement>) => {
+    const currentTarget = event.currentTarget
+    const strongTag = currentTarget.previousSibling
+    const statName = strongTag?.textContent as string
+    const index = ulRefs.current.findIndex(({ id }) => id === statName)
+    const { left } = currentTarget?.getBoundingClientRect() as DOMRect
+
+    if (ulRefs.current[index]) {
+      ulRefs.current[index].style.zIndex = "2"
+      ulRefs.current[index].style.left = `${event.clientX - left + 150}px`
+    }
+
+    console.log(strongTag)
+    setInfoCard({ name: statName, isDisplayed: !infoCard.isDisplayed })
   }
 
-  return <div>
-    <ul>
-      {
-        stats?.map(({ name, base_stat, effort }, index) => <li 
-          key={ index }
-          id={ name }
-        >
-          <strong>
-            { name }
-            <FaPlay onClick={ openStatInfoCard }/>
-          </strong>
+  return <ul style={{ marginLeft: "5rem" }}>
+    {
+      stats?.map(({ name, base_stat, effort }, index) => <Fragment key={ `${name}${base_stat}` }>
+        <div id={ name }>
+            <strong>
+              { name }
+            </strong>
 
-          {
-            overlappingInfoCard.name === name && 
-              overlappingInfoCard.isDisplayed && 
-                <li>
-                  <ul>
-                    <li>base_stat: { base_stat }</li>
-                    <li>effort: { effort }</li>
-                  </ul>
-                </li>
+            <FaPlay 
+              onClick={ openStatInfoCard } 
+              style={
+                infoCard.name === name && infoCard.isDisplayed ? 
+                  {} : { opacity: "0.3" } 
+              }
+            />
+        </div>
+
+        <ul 
+          id={ name }
+          ref={ self => ulRefs.current[index] = self as HTMLUListElement } 
+          style={
+            infoCard.name === name && infoCard.isDisplayed ? 
+              { zIndex: "2" } : { zIndex: "1", display: "none" }
           }
-        </li>)
-      }
-    </ul>
-  </div>
+        >
+          <li>base_stat: { base_stat }</li>
+          <li>effort: { effort }</li>
+        </ul>
+      </Fragment>
+      )
+    }
+  </ul>
 }
 
 export default PokemonStats
