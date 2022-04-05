@@ -8,7 +8,7 @@ const PokemonAbilities: FC<IPokemonAbilitiesProps> = (
   { abilities }: IPokemonAbilitiesProps
 ) => {
   return <div>
-    <ul>
+    <ul style={{ minWidth: "10rem" }}>
       {
         abilities?.map((ability, index) => <li key={ index }>
           { ability }

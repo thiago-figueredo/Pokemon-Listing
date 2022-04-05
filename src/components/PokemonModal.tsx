@@ -4,7 +4,8 @@ import {
   IPokemonStats, 
   IPokemonTypes 
 } from "../interfaces/pokemon"
-import { CSSProperties, forwardRef, MouseEventHandler } from "react"
+import { CSSProperties, forwardRef, useContext } from "react"
+import PokemonContext from "../context/PokemonContext"
 import PokemonInfoCard from "./PokemonInfoCard"
 import "../styles/pokemonModal.scss"
 
@@ -18,16 +19,13 @@ export interface IPokemonModalProps {
   readonly moves: IPokemonMoves
   readonly abilities: IPokemonAbilities
   readonly stats: IPokemonStats
-  readonly closePokemonModal: MouseEventHandler<HTMLOrSVGElement>
 }
 
 const PokemonModal = forwardRef<HTMLElement, IPokemonModalProps>((
-  { 
-    name, src, height, weight, types, moves, 
-    abilities, stats, style, closePokemonModal 
-  },
+  { name, src, height, weight, types, moves, abilities, stats, style },
   ref
 ) => {
+  const { closePokemonModal } = useContext(PokemonContext)
   const pokemonInfoCardProps = { types, moves, abilities, stats }
 
   return <article id="pokemon-modal" ref={ ref } style={ style }>
@@ -36,7 +34,7 @@ const PokemonModal = forwardRef<HTMLElement, IPokemonModalProps>((
       <img 
         className={ `close-modal ${name}`} 
         src="https://cdn-icons-png.flaticon.com/512/753/753345.png" 
-        onClick={ closePokemonModal } 
+        onClick={ closePokemonModal }
         alt=""
       />
     </section>

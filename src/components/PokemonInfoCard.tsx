@@ -5,7 +5,7 @@ import {
   IPokemonStats, 
   IPokemonTypes 
 } from "../interfaces/pokemon"
-import { MouseEvent, useState, FC } from "react"
+import { MouseEvent, useState, FC, CSSProperties } from "react"
 import OverlappingInfoCard from "./OverlappingInfoCard"
 import PokemonTypes from "./PokemonTypes"
 import PokemonMoves from "./PokemonMoves"
@@ -32,7 +32,9 @@ export default function PokemonInfoCard({
     isDisplayed: false,
   })
 
-  const [pokemonMovesStyle, setPokemonMovesStyle] = useState({})
+  const [pokemonMovesStyle, setPokemonMovesStyle] = useState<CSSProperties>({
+    minWidth: "12rem"
+  })
 
   const pokemonTypesComponent = PokemonTypes.name
   const pokemonMovesComponent = PokemonMoves.name
@@ -49,7 +51,7 @@ export default function PokemonInfoCard({
     const componentName = arrayWithComponentName[1]
     const { top } = pokemonInfoCard?.getBoundingClientRect() as DOMRect
 
-    setPokemonMovesStyle({ top: event.clientY - top })
+    setPokemonMovesStyle({ ...pokemonMovesStyle, top: event.clientY - top })
     setInfoCard(({ name, isDisplayed }) => ({
       isDisplayed: name === componentName ? !isDisplayed : true,
       name: componentName

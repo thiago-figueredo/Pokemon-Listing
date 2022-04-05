@@ -11,6 +11,7 @@
   grid-column: 1/2;
   margin: 0 auto;
   margin-bottom: 2rem;
+  margin-top: 2rem;
   border-radius: .5rem;
   padding: 1rem;
 
@@ -86,6 +87,12 @@
       }
     }
 
+    .PokemonStats {
+      ul {
+        min-width: 10rem;
+      }
+    }
+
     .overlapping-info-card {
       svg {
         width: 1rem;
@@ -106,7 +113,6 @@
         padding: 1rem 1.8rem;
         border: 2px solid snow;
         margin-left: 1.5rem;
-        width: 90%;
 
         li {
           width: 100%;
