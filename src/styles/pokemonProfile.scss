@@ -1,0 +1,103 @@
+@import "./animation.scss";
+@import "./global.scss";
+
+#root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pokemon-profile {
+  text-align: center;
+
+  article {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    #pokemon-info {
+      width: 80%;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-radius: .5rem;
+      border: 3px solid snow;
+      background: #252525;
+
+      div, section {
+        width: 80%;
+        display: flex;
+        margin-bottom: .5rem;
+      }
+
+      div {
+        justify-content: center;
+      }
+
+      section {
+        flex-direction: column;
+      }
+    }
+
+    .image {
+      display: flex;
+      justify-content: space-evenly;
+      border: 3px solid snow;
+      width: 80%;
+      margin: 1rem 0 1rem 0;
+
+      #pokemon {
+        width: 100%;
+        position: relative;
+        background: #252525;
+      }
+    }
+  }
+}
+
+.home {
+  position: fixed;
+  top: 3rem;
+  left: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .3rem;
+}
+
+.go-back, .go-next {
+  position: fixed;
+  border-radius: 50%;
+  bottom: 1rem;
+  padding: .3rem;
+  text-align: center;
+  background: tomato;
+  cursor: pointer;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.go-back, .go-next, .home {
+  width: 2rem;
+  height: 2rem;
+}
+
+.go-back {
+  left: 1rem;
+
+  svg {
+    background: snow;
+    border-radius: 50%;
+    border: 1px solid snow;
+  }
+}
+
+.go-next {
+  right: 1rem;
+}

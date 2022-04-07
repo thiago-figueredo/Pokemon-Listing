@@ -3,7 +3,6 @@
 #pokemon {
   width: 60%;
   max-width: 34rem;
-  position: relative;
   display: grid;
   grid-template-columns: 1fr;
   justify-content: center;
@@ -13,23 +12,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-  }
-
-
-  .loading {
-    display: flex;
-    align-items: center;
-    height: 65vh;
-
-    h3 {
-      margin-right: .5rem;
-    }
-
-    .loading-dots {
-      display: flex;
-      align-items: flex-end;
-      height: 1.5rem;
-    }
   }
 
   .pokemon-section {

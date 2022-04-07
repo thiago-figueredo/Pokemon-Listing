@@ -1,60 +1,51 @@
 import { 
-  MutableRefObject, 
   CSSProperties, 
   createContext, 
-  MouseEvent, 
   ReactNode, 
   useState,
-  useRef,
   Dispatch,
   SetStateAction,
   useCallback
 } from "react"
-import { IPokemon, IPokeApiPokemon } from "../interfaces/pokemon"
-import { IPokeApiResponse } from "../interfaces/pokemon"
+import { 
+  IPokemon, 
+  IPokeApiPokemon, 
+  IPokeApiResponse, 
+  IPokemonState 
+} from "../interfaces/pokemon"
+import useLocalStorage from "../hooks/useLocalStorage"
+import { MouseEventHandler } from "react"
 
 export interface IPokemonModal {
   readonly display: boolean
   readonly style: CSSProperties
 }
 
-export interface IPokemonState {
-  readonly pokemons: IPokemon[]
-  readonly previousPokemonsUrl: string
-  readonly nextPokemonsUrl: string
-  readonly pokemonModals: IPokemonModal[]
-  readonly loadingPokemons: boolean
-}
-
 export interface IPokemonContext {
   readonly state: IPokemonState
-  readonly pokemonSectionRefs: MutableRefObject<HTMLElement[]>
+  readonly pokemonsLocalStorage: IPokemon[]
 
+  readonly setPokemonsToLocalStorage: (value: IPokemon[] | ((oldValue: IPokemon[]) => void)) => void
   readonly setState: Dispatch<SetStateAction<IPokemonState>>
-  readonly loadPokemonsData: Promise<IPokemonState | IPokeApiResponse>
-  readonly getPreviousPokemons: Function
-  readonly getNextPokemons: Function
-  readonly openPokemonModal: Function
-  readonly closePokemonModal: Function
+  readonly loadPokemonsData: (url?: string) => Promise<IPokemonState>
+  readonly getPreviousPokemons: MouseEventHandler<HTMLElement>
+  readonly getNextPokemons: MouseEventHandler<HTMLElement>
 }
 
 export const initialState: IPokemonState = {
   pokemons: [],
-  loadingPokemons: true,
-  pokemonModals: Array(20),
   previousPokemonsUrl: "",
   nextPokemonsUrl: "",
 }
 
-const initialContextState = { 
+const initialContextState: IPokemonContext = { 
   state: initialState, 
-  setState: (oldState: IPokemonState) => {},
-  pokemonSectionRefs: { current: [] as HTMLElement[] },
-  loadPokemonsData: async () => ({}),
+  pokemonsLocalStorage: [] as IPokemon[],
+  setPokemonsToLocalStorage: (value: IPokemon[] | ((oldValue: IPokemon[]) => void)) => {},
+  setState: () => {},
+  loadPokemonsData: async (url?: string) => ({}) as IPokemonState,
   getPreviousPokemons: () => {},
   getNextPokemons: () => {},
-  openPokemonModal: ({ currentTarget }: MouseEvent<HTMLElement>) => {},
-  closePokemonModal: ({ currentTarget }: MouseEvent<HTMLElement>) => {},
 }
 
 const PokemonContext = createContext<typeof initialContextState>(initialContextState)
@@ -63,23 +54,38 @@ interface IPokemonContextProviderProps {
   readonly children: ReactNode
 }
 
-const getJSON = async (url: string) => {
+async function getJSON(url: string) {
   const response = await fetch(url)
   return response.json()
 }
 
-const getPokemonImage = async (
+async function getPokemonProfileImage(url: string): Promise<string> {
+  try {
+    const { sprites } = await getJSON(url)
+    const other = sprites.other
+    const profileImageURL = other["official-artwork"]["front_default"]
+    const profileImageResponse = await fetch(profileImageURL)
+    const profileImageBlob = await profileImageResponse.blob()
+    const profileImage = URL.createObjectURL(profileImageBlob as Blob)
+    
+    return profileImage
+  } catch {
+    return ""
+  }
+}
+
+async function getPokemonImage(
   id: number,
   url: string = "https://pokeapi.co/api/v2/pokemon-form"
-) => {
+) {
   try {
     const { sprites } = await getJSON(`${url}/${id}`)
-    const imageSourceUrl = sprites["front_default"]
-    const response = await fetch(imageSourceUrl)
+    const imageURL = sprites["front_default"]
+    const response = await fetch(imageURL)
     const blob = await response.blob()
-    const src = URL.createObjectURL(blob as Blob)
+    const image = URL.createObjectURL(blob as Blob)
 
-    return src
+    return image
   } catch {
     return ""
   }
@@ -88,11 +94,11 @@ const getPokemonImage = async (
 export function PokemonContextProvider(
   { children }: IPokemonContextProviderProps
 ) {
-  const pokemonSectionRefs = useRef<HTMLElement[]>([])
   const [state, setState] = useState<IPokemonState>(initialState as IPokemonState)
+  const [pokemonsLocalStorage, setPokemonsToLocalStorage] = useLocalStorage<IPokemon[]>("pokemons", [])
   const { previousPokemonsUrl, nextPokemonsUrl } = state
 
-  const loadPokemonsData = useCallback(
+  const loadPokemonsData = useCallback<(url?: string) => Promise<IPokemonState>>(
     async (url = "https://pokeapi.co/api/v2/pokemon") => {
       try {
         const { results, next, previous }: IPokeApiResponse = await getJSON(url)
@@ -100,11 +106,14 @@ export function PokemonContextProvider(
           const {
             id, moves, types, abilities, height, weight, stats
           }: IPokeApiPokemon = await getJSON(url)
-          const src = await getPokemonImage(id) as string
+          const smallImage = await getPokemonImage(id)
+          const largeImage = await getPokemonProfileImage(url)
 
           return {
-            name, height, weight, id, src,
+            height, weight, id, url, 
             isDisplayed: false,
+            name: name.at(0)?.toUpperCase() + name.slice(1), 
+            image: { small: smallImage, large: largeImage },
             types: types.map(({ type }) => type.name),
             moves: moves.map(({ move }) => move.name),
             abilities: abilities.map(({ ability }) => ability.name),
@@ -119,82 +128,45 @@ export function PokemonContextProvider(
         pokemons, 
         nextPokemonsUrl: next, 
         previousPokemonsUrl: previous,
-      }
+      } 
       } catch {
-        return state
+        return { pokemons: [], nextPokemonsUrl: "", previousPokemonsUrl: "" } 
       }
-  }, [state])
+  }, [])
 
-  const setLoadingPokemons = () => setState({ ...state, loadingPokemons: true })
+
+  const resetPokemonLocalStorage = () => {
+    setPokemonsToLocalStorage([])
+  }
 
   const getPreviousPokemons = async () => {
-    setLoadingPokemons()
-
     if (previousPokemonsUrl) {
+      resetPokemonLocalStorage()
       const pokemonData = await loadPokemonsData(previousPokemonsUrl)
 
-      setState({ 
-        ...pokemonData, 
-        loadingPokemons: false,
-        pokemonModals: state.pokemonModals.map(
-          pokemonModal => ({ ...pokemonModal, display: false })) 
-      })
+      setState(pokemonData)
+      setPokemonsToLocalStorage(pokemonData.pokemons)
     }
   }
 
   const getNextPokemons = async () => {
-    setLoadingPokemons()
-
     if (nextPokemonsUrl) {
+      resetPokemonLocalStorage()
       const pokemonData = await loadPokemonsData(nextPokemonsUrl)
 
-      setState({ 
-        ...pokemonData, 
-        loadingPokemons: false,
-        pokemonModals: state.pokemonModals.map(
-          pokemonModal => ({ ...pokemonModal, display: false })) 
-      })
+      setState(pokemonData)
+      setPokemonsToLocalStorage(pokemonData.pokemons)
     }
   }
 
-  const openPokemonModal = ({ currentTarget }: MouseEvent<HTMLElement>) => {
-    const pokemonName = currentTarget.id
-    const pokemonIndex = state.pokemons.findIndex(({ name }) => name === pokemonName)
-    const gridRow = `${pokemonIndex + 1} / ${pokemonIndex + 2}`
-
-    pokemonSectionRefs.current[pokemonIndex]!.style.display = "none"
-
-    const newState = { ...state }
-
-    newState.pokemonModals[pokemonIndex] = {
-      display: true,
-      style: { gridRow }
-    }
-
-    setState(newState)
-  }
-
-  const closePokemonModal = ({ currentTarget }: MouseEvent<HTMLElement>) => {
-    const arrayWithPokemonName = currentTarget.className.match(/close-modal (.*)/)
-    const pokemonName = arrayWithPokemonName ? arrayWithPokemonName[1] : ""
-    const { pokemons, pokemonModals } = state
-
-    if (arrayWithPokemonName) {
-      const pokemonIndex = pokemons.findIndex(({ name }) => name === pokemonName)
-
-      pokemonSectionRefs.current[pokemonIndex]!.style.display = ""
-      pokemonModals[pokemonIndex] = { 
-        display: false, 
-        style: {} 
-      }
-
-      setState({ ...state, pokemonModals })
-    }
-  }
-
-  const value = { 
-    state, setState, loadPokemonsData, getNextPokemons, getPreviousPokemons, 
-    pokemonSectionRefs, openPokemonModal, closePokemonModal
+  const value: IPokemonContext = { 
+    state, 
+    setState, 
+    loadPokemonsData, 
+    getNextPokemons, 
+    getPreviousPokemons, 
+    pokemonsLocalStorage, 
+    setPokemonsToLocalStorage
   }
 
   return <PokemonContext.Provider value={ value }>

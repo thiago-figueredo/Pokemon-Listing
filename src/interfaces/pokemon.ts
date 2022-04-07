@@ -1,3 +1,8 @@
+interface IPokemonImage {
+  readonly small: string
+  readonly large: string
+}
+
 interface IPokemonInfo {
   readonly id: number
   readonly name: string
@@ -7,6 +12,12 @@ interface IPokemonInfo {
   readonly types: string[]
   readonly moves: string[]
   readonly stats: IPokemonStat[]
+}
+
+export interface IPokemonState {
+  readonly pokemons: IPokemon[]
+  readonly previousPokemonsUrl: string
+  readonly nextPokemonsUrl: string
 }
 
 export interface IPokemonStat {
@@ -64,6 +75,7 @@ export interface IPokeApiResponse {
 }
 
 export interface IPokemon extends IPokemonInfo {
-  readonly src: string
+  readonly image: IPokemonImage
+  readonly url: string
   readonly isDisplayed: boolean
 }

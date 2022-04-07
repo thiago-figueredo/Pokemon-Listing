@@ -16,3 +16,19 @@
 .loading-effect {
   animation: loading-effect 1s infinite;
 }
+
+.loading {
+  display: flex;
+  align-items: center;
+  height: 65vh;
+
+  h3 {
+    margin-right: .5rem;
+  }
+
+  .loading-dots {
+    display: flex;
+    align-items: flex-end;
+    height: 1.5rem;
+  }
+}
