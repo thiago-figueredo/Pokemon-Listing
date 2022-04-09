@@ -1,7 +1,7 @@
 @import "./animation.scss";
 
 #pokemon {
-  width: 60%;
+  width: 80%;
   max-width: 34rem;
   display: grid;
   grid-template-columns: 1fr;
@@ -22,6 +22,7 @@
     border: 2px solid tomato;
     border-radius: .3rem;
     font-weight: 700;
+    background: #252525;
 
     div {
       display: flex;

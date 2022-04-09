@@ -1,90 +1,98 @@
 import { useContext, useEffect, useState } from "react"
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa"
-import { useNavigate, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import { IPokemon } from "../../interfaces/pokemon"
-import PokemonContext from "../../context/PokemonContext"
+import PokemonContext, { getPokemonProfileImage } from "../../context/PokemonContext"
+import PokemonStats, { IPokemonStatsProps } from "./PokemonStats"
 import PokemonInvalid from "../../pages/pokemon/PokemonInvalid"
 import GoToHome from "../GoToHome"
+import Loading from "../Loading"
+import PokemoNavigationButtons from "./PokemonNavigation"
 import "../../styles/pokemonProfile.scss"
 
 export default function PokemonProfile() {
-  const navigate = useNavigate()
   const { id } = useParams()
-  const { pokemonsLocalStorage } = useContext(PokemonContext)
-  const [loadingPokemon, setLoadingPokemon] = useState(true)
+  const { 
+    loading, 
+    pokeApiURL,
+    setLoading, 
+    loadPokemonsData,
+    localStorage,
+    setLocalStorage
+  } = useContext(PokemonContext)
   const byId = (pokemon: IPokemon) => pokemon.id === Number(id)
-  const pokemon = pokemonsLocalStorage.find(byId) as IPokemon
+  const pokemonLocalStorage = localStorage.pokemons.find(byId) as IPokemon
+  const [profileImage, setProfileImage] = useState(pokemonLocalStorage?.image.large)
+  const pokemonStatsProps: IPokemonStatsProps = { stats: pokemonLocalStorage?.stats }
 
-  useEffect(() => { setLoadingPokemon(false) }, [])
+  useEffect(() => {
+    if (pokemonLocalStorage?.id !== Number(id)) {
+      const pokemonId = Number(id)
+      
+      setLoading(true)
 
-  if (pokemon?.id !== Number(id)) return <PokemonInvalid id={ id as string} />
+      Promise.all([
+        loadPokemonsData(`${pokeApiURL}/?offset=${pokemonId - 1}&limit=${1}`)
+          .then(pokemonData => setLocalStorage(pokemonData)),
+        getPokemonProfileImage(pokemonLocalStorage?.url)
+          .then(profileImage => setProfileImage(profileImage))
+      ])
+      
+      setLoading(false)
+    }
+  })
 
   return <>
     <GoToHome />
 
     {
-      loadingPokemon ? 
-        <section className="loading">
-          <h3>Loading</h3>
-
-          <div className="loading-dots">
-            <h1 className="loading-effect">.</h1>
-            <h1 className="loading-effect">.</h1>
-            <h1 className="loading-effect">.</h1>
-          </div>
-        </section> : 
-
+      loading ? 
+        <Loading /> : 
         <section className="pokemon-profile">
-          <h2>{ pokemon?.name } #{ id }</h2>
+          <h2>{ pokemonLocalStorage?.name } #{ id }</h2>
 
           <article>
             <section className="image">
-              <img id="pokemon" src={ pokemon?.image.large } alt="" />
+              <img 
+                id="pokemon" 
+                src={ profileImage } 
+                alt="" 
+              />
             </section>
 
             <section id="pokemon-info">
               <div>
-                <strong>height:&nbsp;</strong>
-                <span>{ pokemon?.height }</span>
+                <strong>Height</strong>
+                <span>{ pokemonLocalStorage?.height / 10 }&nbsp;m</span>
               </div>
 
               <div>
-                <strong>weight:&nbsp;</strong>
-                <span>{ pokemon?.weight }</span>
+                <strong>Weight</strong>
+                <span>{ pokemonLocalStorage?.weight / 10 }&nbsp;kg</span>
               </div>
 
-              <section>
-                <strong>types:</strong>
-                { 
-                  pokemon?.types.map(type => 
-                    <p key={ id + type }>{ type }</p>) 
-                }
-              </section>
+              <div>
+                <strong>Types</strong>
+                <div>
+                  { pokemonLocalStorage?.types.map(type => <p key={ id + type }>{ type }</p>) }
+                </div>
+              </div>
 
-              <section>
-                <strong>abilities:&nbsp;</strong>
-                { 
-                  pokemon?.abilities.map(ability => 
-                    <p key={ id + ability }>{ ability }</p>) 
-                }
-              </section>
+              <div>
+                <strong>Abilities</strong>
+                <div>
+                  { 
+                    pokemonLocalStorage?.abilities.map(ability => 
+                      <p key={ id + ability }>{ ability }</p>) 
+                  }
+                </div>
+              </div>
             </section>
 
-            <section className="pokemon-stats">
-
-            </section>
+            <PokemonStats { ...pokemonStatsProps } />
           </article> 
-
-          <FaArrowLeft 
-            className={ "go-back" } 
-            onClick={ () => navigate(`/pokemon/${Number(id) - 1}`) }
-          />
-
-          <FaArrowRight 
-            className={ "go-next" } 
-            onClick={ () => navigate(`/pokemon/${Number(id) + 1}`) }
-          />
         </section> 
     }
+
+    <PokemoNavigationButtons />
   </>
 }

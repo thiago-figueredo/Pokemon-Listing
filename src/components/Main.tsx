@@ -1,70 +1,75 @@
 import { useEffect, useContext, Fragment } from "react"
-import { IPokemon, IPokemonState } from "../interfaces/pokemon"
-import PokemonContext, { initialState } from "../context/PokemonContext"
+import { IPokemonState } from "../interfaces/pokemon"
+import PokemonContext, { initialPokemonState } from "../context/PokemonContext"
 import Pokemon from "./pokemon/Pokemon"
+import Loading from "./Loading"
 
 export default function Main() {
   const { 
     state, 
+    loading,
     setState, 
+    setLoading,
     getNextPokemons, 
     loadPokemonsData, 
     getPreviousPokemons, 
-    pokemonsLocalStorage, 
-    setPokemonsToLocalStorage
+    localStorage, 
+    setLocalStorage
   } = useContext(PokemonContext)
   const { previousPokemonsUrl, nextPokemonsUrl } = state
 
   useEffect(() => { 
-    const isFirstRender = () => JSON.stringify(state) === JSON.stringify(initialState)
+    const isFirstRender = () => 
+      JSON.stringify(state) === JSON.stringify(initialPokemonState)
 
-    if (isFirstRender() && !pokemonsLocalStorage.length) {
+    if (isFirstRender()) {
       loadPokemonsData()
-        .then(((pokemonData: Partial<IPokemonState>) => {
+        .then(((pokemonData: IPokemonState) => {
           setState({ ...state, ...pokemonData })
-          setPokemonsToLocalStorage(pokemonData.pokemons as IPokemon[])
+          setLocalStorage(pokemonData)
+          setLoading(false)
         }))
     } 
   })
 
   return (
-    <main id="pokemon">
+    <main id="pokemon" style={ loading ? { cursor: "wait" } : {}} >
       {
-        !pokemonsLocalStorage.length ? 
-          <section className="loading">
-            <h3>Loading</h3>
+        loading ? 
+          <Loading /> : <>
+             {
+                localStorage.pokemons?.map(({ name, id, image }) => 
+                  <Fragment key={ id }>
+                    <Pokemon 
+                      id={ id }
+                      name={ name }
+                      src={ image.small }
+                    />
+                  </Fragment>
+                )
+             }
 
-            <div className="loading-dots">
-              <h1 className="loading-effect">.</h1>
-              <h1 className="loading-effect">.</h1>
-              <h1 className="loading-effect">.</h1>
-            </div>
-          </section> : pokemonsLocalStorage?.map(({ name, id, image }) => 
-            <Fragment key={ id }>
-              <Pokemon 
-                id={ id }
-                name={ name }
-                src={ image.small }
-              />
-            </Fragment>
-          )
+             <div className="toggle-page">
+                <button 
+                  onClick={ getPreviousPokemons }
+                  style={ previousPokemonsUrl ? 
+                    {} : { cursor: "no-drop", opacity: "0.4" }
+                  }
+                >
+                  Previous
+                </button>
+
+                <button 
+                  onClick={ getNextPokemons }
+                  style={ nextPokemonsUrl ? 
+                    {} : { cursor: "no-drop", opacity: "0.6" }
+                  }
+                >
+                  Next
+                </button>
+              </div>
+          </>
       }
-
-      <div className="toggle-page">
-        <button 
-          onClick={ getPreviousPokemons }
-          style={ previousPokemonsUrl ? {} : { cursor: "no-drop" }}
-        >
-          Previous
-        </button>
-
-        <button 
-          onClick={ getNextPokemons }
-          style={ nextPokemonsUrl ? {} : { cursor: "no-drop" }}
-        >
-          Next
-        </button>
-      </div>
     </main>
   )
 }

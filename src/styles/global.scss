@@ -5,16 +5,12 @@
   padding: 0;
   box-sizing: border-box;
   color: snow;
-  font-family: Roboto;
+  font-family: Roboto Arial, Helvetica, sans-serif;
 }
 
 body, #root {
-  background-color: #303030;
+  background-color: #202020;
   height: 100%;
-}
-
-ul {
-  list-style-type: disc;
 }
 
 button {
@@ -24,11 +20,11 @@ button {
   border-radius: .2rem;
   margin-bottom: 1rem;
   font-size: medium;
+  opacity: 0.8;
 
   &:hover {
     cursor: pointer;
-    background: snow;
-    color: tomato;
+    opacity: 1;
   }
 }
 

@@ -1,69 +1,83 @@
-import {  FC, MouseEvent, useRef, useState, Fragment } from "react"
 import { IPokemonStat } from "../../interfaces/pokemon"
-import { FaPlay } from "react-icons/fa"
+import {  FC } from "react"
+import PokemonBar from "./PokemonBar"
 
 export interface IPokemonStatsProps {
-  readonly stats?: IPokemonStat[]
+  readonly stats: IPokemonStat[]
 }
 
-const PokemonStats: FC<IPokemonStatsProps> = ({ stats }: IPokemonStatsProps) => {
-  const [infoCard, setInfoCard] = useState({ name: "", isDisplayed: false })
-  const ulRefs = useRef<HTMLUListElement[]>([])
+enum PokemonStat {
+  hp = "hp",
+  attack = "attack",
+  defense = "defense",
+  specialAttack = "special-attack",
+  specialDefense = "special-defense",
+  speed = "speed"
+}
 
-  const openStatInfoCard = (event: MouseEvent<SVGElement>) => {
-    const currentTarget = event.currentTarget
-    const strongTag = currentTarget.previousSibling
-    const statName = strongTag?.textContent as string
-    const index = ulRefs.current.findIndex(({ id }) => id === statName)
-    const { width } = strongTag?.parentElement?.getBoundingClientRect() as DOMRect
-    const { left } = currentTarget?.getBoundingClientRect() as DOMRect
+const PokemonStats: FC<IPokemonStatsProps> = ({ stats }) => {
+  if (!stats) return null
 
-    if (ulRefs.current[index]) {
-      ulRefs.current[index].style.zIndex = "2"
-      ulRefs.current[index].style.left = `${event.clientX - left + width}px`
-    }
+  const hp = stats.find(({ name }) => name === PokemonStat.hp) 
+  const attack = stats.find(({ name }) => name === PokemonStat.attack)
+  const defense = stats.find(({ name }) => name === PokemonStat.defense)
+  const specialAttack = stats.find(({ name }) => name === PokemonStat.specialAttack)
+  const specialDefense = stats.find(({ name }) => name === PokemonStat.specialDefense)
+  const speed = stats.find(({ name }) => name === PokemonStat.speed)
 
-    setInfoCard({ 
-      name: infoCard.name === statName ? "" : statName, 
-      isDisplayed: infoCard.name === statName ? false : true
-    })
-  }
+  return stats.length ? (
+    <section className="pokemon-stats">
+      <span id="stat">Stats</span>
 
-  return (
-    <ul style={{ margin: "0 0 2rem 5rem", minWidth: "13rem" }}>
-      {
-        stats?.map(({ name, base_stat, effort }, index) => 
-          <Fragment key={ `${name}${base_stat}` }>
-            <div id={ name }>
-                <strong>
-                  { name }
-                </strong>
+      <div className="hp">
+        <PokemonBar 
+          numberOfBarsForColumn={ 15 }
+          base_stat={ hp?.base_stat as number }
+        />
+        <p>HP</p>
+      </div>
 
-                <FaPlay 
-                  onClick={ openStatInfoCard } 
-                  style={
-                    infoCard.name === name && infoCard.isDisplayed ? 
-                      {} : { opacity: "0.3" } 
-                  }
-                />
-            </div>
+      <div className="attack">
+        <PokemonBar 
+          numberOfBarsForColumn={ 15 }
+          base_stat={ attack?.base_stat as number }
+        />
+        <p>Attack</p>
+      </div>
+      
+      <div className="defense">
+        <PokemonBar 
+          numberOfBarsForColumn={ 15 }
+          base_stat={ defense?.base_stat as number }
+        />
+        <p>Defense</p>
+      </div>
 
-            <ul 
-              id={ name }
-              ref={ self => ulRefs.current[index] = self as HTMLUListElement } 
-              style={
-                infoCard.name === name && infoCard.isDisplayed ? 
-                  { zIndex: "2" } : { zIndex: "2", display: "none" }
-              }
-            >
-              <li>base_stat: { base_stat }</li>
-              <li>effort: { effort }</li>
-            </ul>
-          </Fragment>
-        )
-      }
-    </ul>
-  )
+      <div className="special-attack">
+        <PokemonBar 
+          numberOfBarsForColumn={ 15 }
+          base_stat={ specialAttack?.base_stat as number }
+        />
+        <p>Special Attack</p>
+      </div>
+
+      <div className="special-defense">
+        <PokemonBar 
+          numberOfBarsForColumn={ 15 }
+          base_stat={ specialDefense?.base_stat as number }
+        />
+        <p>Special Defense</p>
+      </div>
+
+      <div className="speed">
+        <PokemonBar 
+          numberOfBarsForColumn={ 15 }
+          base_stat={ speed?.base_stat as number }
+        />
+        <p>Speed</p>
+      </div>
+    </section>
+  ) : null
 }
 
 export default PokemonStats

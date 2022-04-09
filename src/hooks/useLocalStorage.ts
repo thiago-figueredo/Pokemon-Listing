@@ -16,7 +16,7 @@ export default function useLocalStorage<T>(key: string, initialValue: T) {
       setStoredValue(valueToStore as T)
       localStorage.setItem(key, JSON.stringify(valueToStore))
     } catch (exception) {
-      console.error(exception)
+      console.error(`useLocalStorage: ${exception}`)
     }
   }
 
