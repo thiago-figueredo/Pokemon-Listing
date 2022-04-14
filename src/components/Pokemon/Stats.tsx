@@ -1,6 +1,6 @@
 import { IPokemonStat } from "../../interfaces/pokemon"
-import {  FC } from "react"
-import PokemonBar from "./PokemonBar"
+import { FC } from "react"
+import PokemonBar from "./Bar"
 
 export interface IPokemonStatsProps {
   readonly stats: IPokemonStat[]

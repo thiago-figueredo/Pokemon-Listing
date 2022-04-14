@@ -1,18 +1,21 @@
 import { useNavigate } from "react-router-dom"
-import { FaBars } from "react-icons/fa"
 import { useContext } from "react"
-import PokemonContext from "../context/PokemonContext"
+import { FaBars } from "react-icons/fa"
+import PokemonContext from "../context/pokemon"
 
 export default function GoToHome() {
   const navigate = useNavigate()
-  const { setLoading } = useContext(PokemonContext)
+  const { setState } = useContext(PokemonContext)
 
-  return <FaBars 
-    className="home" 
-    onClick={ 
-      () => {
-        // setLoading(true)
-        navigate("/") 
-      }
-    } />
+  return <FaBars className="home" onClick={ 
+    () => {
+      setState(oldState => ({ 
+        ...oldState, 
+        loading: true,
+        profileImage: ""
+      }))
+
+      navigate("/") 
+    }
+  } />
 }

@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+export type SetLocalStorage<T> = (value: T | ((oldValue: T) => void)) => void
+
 export default function useLocalStorage<T>(key: string, initialValue: T) {
   const [storedValue, setStoredValue] = useState<T>(() => {
     try {

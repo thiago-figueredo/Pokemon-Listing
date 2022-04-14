@@ -1,16 +1,12 @@
-import PokemoNavigationButtons from "../../components/pokemon/PokemonNavigation"
+import PokemoNavigationButtons from "../../components/Pokemon/Navigation"
 import GoToHome from "../..//components/GoToHome"
 
-interface IPokemonInvalid {
-  readonly id: string
-}
-
-export default function PokemonInvalid({ id }: IPokemonInvalid) {
+export default function PokemonInvalid() {
   return <>
     <GoToHome />
 
     <div className="error-page">
-      <h1>Cannot get pokemon data with id #{ id }</h1>
+      <h1>Cannot get pokemon</h1>
     </div>
 
     <PokemoNavigationButtons />

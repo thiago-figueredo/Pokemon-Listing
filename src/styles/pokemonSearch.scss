@@ -1,0 +1,36 @@
+.search {
+  width: 60%;
+  max-width: 34rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  input {
+    width: 100%;
+    padding: .5rem;
+    outline: none;
+    color: black;
+    font-size: large;
+    font-family: 'Roboto', sans-serif;;
+    background: rgba($color: snow, $alpha: 0.9);
+    border: none;
+
+    &:focus {
+      background: rgba($color: snow, $alpha: 1);
+    }
+  }
+
+  button {
+    background: tomato;
+    margin: 0;
+    border-radius: 0;
+    border: none;
+    padding: .56rem;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+}

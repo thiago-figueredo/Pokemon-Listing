@@ -1,44 +1,50 @@
-import { useEffect, useContext, Fragment } from "react"
+import { useEffect, useContext, Fragment, forwardRef, MutableRefObject } from "react"
 import { IPokemonState } from "../interfaces/pokemon"
-import PokemonContext, { initialPokemonState } from "../context/PokemonContext"
-import Pokemon from "./pokemon/Pokemon"
+import PokemonContext, { pokeApiURL } from "../context/pokemon"
+import Pokemon from "./Pokemon/Index"
 import Loading from "./Loading"
+import { ForwardRefRenderFunction } from "react"
 
-export default function Main() {
+const Main = (
+  _ = null, 
+  pokemonSearchRef: MutableRefObject<HTMLInputElement>
+) => {
   const { 
-    state, 
+    pokemons,
     loading,
     setState, 
-    setLoading,
     getNextPokemons, 
+    nextPokemonsUrl,
     loadPokemonsData, 
-    getPreviousPokemons, 
-    localStorage, 
-    setLocalStorage
+    getPreviousPokemons,
+    previousPokemonsUrl
   } = useContext(PokemonContext)
-  const { previousPokemonsUrl, nextPokemonsUrl } = state
 
   useEffect(() => { 
-    const isFirstRender = () => 
-      JSON.stringify(state) === JSON.stringify(initialPokemonState)
+    const randomInteger = (min: number, max: number) =>
+      Math.floor(Math.random() * (max - min + 1)) + min
 
-    if (isFirstRender()) {
-      loadPokemonsData()
-        .then(((pokemonData: IPokemonState) => {
-          setState({ ...state, ...pokemonData })
-          setLocalStorage(pokemonData)
-          setLoading(false)
-        }))
-    } 
-  })
+    if (!pokemons.length) {
+      loadPokemonsData(`${pokeApiURL}/?limit=10&offset=${randomInteger(1, 1000)}`)
+        .then(((pokemonData: IPokemonState) => 
+          setState(oldState => ({ ...oldState, ...pokemonData, loading: false }))
+        ))
+
+      return
+    }
+
+    pokemonSearchRef.current.focus()
+    pokemonSearchRef.current.value = ""
+    setState(oldState => ({ ...oldState, loading: false }))
+  }, [loadPokemonsData, setState, pokemons, pokemonSearchRef])
 
   return (
-    <main id="pokemon" style={ loading ? { cursor: "wait" } : {}} >
+    <main id="pokemon" style={ loading ? { cursor: "wait" } : {} }>
       {
         loading ? 
           <Loading /> : <>
              {
-                localStorage.pokemons?.map(({ name, id, image }) => 
+                pokemons?.map(({ name, id, image }) => 
                   <Fragment key={ id }>
                     <Pokemon 
                       id={ id }
@@ -73,3 +79,7 @@ export default function Main() {
     </main>
   )
 }
+
+export default forwardRef<HTMLInputElement>(
+  Main as ForwardRefRenderFunction<HTMLInputElement, any>
+)

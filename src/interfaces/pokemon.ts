@@ -10,7 +10,6 @@ interface IPokemonInfo {
   readonly weight: number
   readonly abilities: string[]
   readonly types: string[]
-  readonly moves: string[]
   readonly stats: IPokemonStat[]
 }
 
