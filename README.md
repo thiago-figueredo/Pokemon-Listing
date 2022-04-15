@@ -7,12 +7,8 @@ This a front end interview challenge that consists of building a web site with p
 - Sass
 - Yarn
 
-## Vid
-
+## Video
 https://user-images.githubusercontent.com/74860544/163593146-61d4eda0-d1c7-4c7d-886e-5f7397bae3cd.mp4
-
-eo
-
 
 ## Usage
 - Install dependecies: 
